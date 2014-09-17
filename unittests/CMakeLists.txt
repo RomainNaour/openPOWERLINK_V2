@@ -55,10 +55,10 @@ ENDMACRO(ADD_UNIT_TEST)
 
 ################################################################################
 # Set general directories
-SET(OPLK_BASE_DIR ${CMAKE_SOURCE_DIR}/..)
+SET(OPLK_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 SET(OPLK_SOURCE_DIR ${OPLK_BASE_DIR}/stack/src)
 SET(OPLK_INCLUDE_DIR ${OPLK_BASE_DIR}/stack/include)
-SET(TEST_COMMON_SOURCE_DIR ${CMAKE_SOURCE_DIR}/common)
+SET(TEST_COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/common)
 
 # We need a oplkcfg.h file for compiling the sources
 # We are using the project for the complete MN library

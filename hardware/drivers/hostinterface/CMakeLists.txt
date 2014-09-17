@@ -71,7 +71,7 @@ ELSE()
     SET( HOSTIF_LIB_NAME "${HOSTIF_NAME}")
 ENDIF()
 
-SET(BOARDS_COMMON_DIR ${CMAKE_SOURCE_DIR}/boards/${BOARD_NAME}/common)
+SET(BOARDS_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boards/${BOARD_NAME}/common)
 SET(EXAMPLE_BINARY_DIR ${CMAKE_BINARY_DIR}/boards/${BOARD_NAME}/${EXAMPLE_NAME})
 
 ########################################################################
