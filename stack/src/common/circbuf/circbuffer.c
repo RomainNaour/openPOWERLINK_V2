@@ -330,7 +330,7 @@ tCircBufError circbuf_writeData (tCircBufInstance* pInstance_p, const void* pDat
         OPLK_MEMCPY(pCircBuf + pHeader->writeOffset + sizeof(UINT32),
                     pData_p, chunkSize);
         OPLK_DCACHE_FLUSH((pCircBuf + pHeader->writeOffset), chunkSize + sizeof(UINT32));
-        OPLK_MEMCPY(pCircBuf, (UINT8*)pData_p + chunkSize, size_p - chunkSize);
+        OPLK_MEMCPY(pCircBuf, (CONST UINT8*)pData_p + chunkSize, size_p - chunkSize);
         OPLK_DCACHE_FLUSH((pCircBuf), (size_p - chunkSize));
 
         pHeader->writeOffset = blockSize - chunkSize;
@@ -431,7 +431,7 @@ tCircBufError circbuf_writeMultipleData(tCircBufInstance* pInstance_p,
                         pData2_p, partSize);
 
             OPLK_DCACHE_FLUSH((pCircBuf + pHeader->writeOffset), chunkSize + sizeof(UINT32));
-            OPLK_MEMCPY(pCircBuf, (UINT8*)pData2_p + partSize, size2_p - partSize);
+            OPLK_MEMCPY(pCircBuf, (CONST UINT8*)pData2_p + partSize, size2_p - partSize);
             OPLK_DCACHE_FLUSH((pCircBuf), size2_p - partSize);
         }
         else
@@ -440,7 +440,7 @@ tCircBufError circbuf_writeMultipleData(tCircBufInstance* pInstance_p,
             OPLK_MEMCPY(pCircBuf + pHeader->writeOffset + sizeof(UINT32),
                         pData_p, chunkSize);
             OPLK_DCACHE_FLUSH((pCircBuf + pHeader->writeOffset), chunkSize + sizeof(UINT32));
-            OPLK_MEMCPY(pCircBuf, (UINT8*)pData_p + chunkSize, partSize);
+            OPLK_MEMCPY(pCircBuf, (CONST UINT8*)pData_p + chunkSize, partSize);
             OPLK_MEMCPY(pCircBuf + partSize, pData2_p, size2_p);
 
             OPLK_DCACHE_FLUSH((pCircBuf), partSize + size2_p);
