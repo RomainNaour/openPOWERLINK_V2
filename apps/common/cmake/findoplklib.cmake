@@ -81,36 +81,42 @@ MACRO(FIND_OPLK_LIBRARY OPLK_NODE_TYPE)
     # Set oplk library directory
     SET(OPLKLIB_DIR ${OPLK_ROOT_DIR}/stack/lib/${SYSTEM_NAME_DIR}/${SYSTEM_PROCESSOR_DIR})
 
-    IF((CMAKE_GENERATOR MATCHES "Visual Studio") OR (CMAKE_BUILD_TYPE STREQUAL "Release"))
-        # Search for release library
-        UNSET(OPLKLIB CACHE)
-        MESSAGE(STATUS "Searching for LIBRARY ${OPLKLIB_NAME} in ${OPLKLIB_DIR}")
-        FIND_LIBRARY(OPLKLIB NAME ${OPLKLIB_NAME}
-                             HINTS ${OPLKLIB_DIR} ${OPLKLIB_DIR}/${CFG_DEMO_BOARD_NAME}/${CFG_DEMO_NAME})
+    # Don't look for oplk libraries for a top level build
+    IF(CFG_OPLK_LIB)
+        SET(OPLKLIB ${OPLKLIB_NAME})
+        SET(OPLKLIB_DEBUG ${OPLKLIB_DEBUG_NAME})
+    ELSE(CFG_OPLK_LIB)
+        IF((CMAKE_GENERATOR MATCHES "Visual Studio") OR (CMAKE_BUILD_TYPE STREQUAL "Release"))
+            # Search for release library
+            UNSET(OPLKLIB CACHE)
+            MESSAGE(STATUS "Searching for LIBRARY ${OPLKLIB_NAME} in ${OPLKLIB_DIR}")
+            FIND_LIBRARY(OPLKLIB NAME ${OPLKLIB_NAME}
+                                HINTS ${OPLKLIB_DIR} ${OPLKLIB_DIR}/${CFG_DEMO_BOARD_NAME}/${CFG_DEMO_NAME})
 
-        IF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+            IF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
-            UNSET(OPLKDLL CACHE)
-            FIND_PROGRAM(OPLKDLL NAME ${OPLKLIB_NAME}.dll
-                                 HINTS ${OPLKLIB_DIR})
+                UNSET(OPLKDLL CACHE)
+                FIND_PROGRAM(OPLKDLL NAME ${OPLKLIB_NAME}.dll
+                                    HINTS ${OPLKLIB_DIR})
 
-        ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    ENDIF()
+            ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        ENDIF()
 
-    IF((CMAKE_GENERATOR MATCHES "Visual Studio") OR (CMAKE_BUILD_TYPE STREQUAL "Debug"))
-        # Search for debug library
-        UNSET(OPLKLIB_DEBUG CACHE)
-        MESSAGE(STATUS "Searching for LIBRARY ${OPLKLIB_DEBUG_NAME} in ${OPLKLIB_DIR}")
-        FIND_LIBRARY(OPLKLIB_DEBUG NAME ${OPLKLIB_DEBUG_NAME}
-                                   HINTS ${OPLKLIB_DIR} ${OPLKLIB_DIR}/${CFG_DEMO_BOARD_NAME}/${CFG_DEMO_NAME})
+        IF((CMAKE_GENERATOR MATCHES "Visual Studio") OR (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+            # Search for debug library
+            UNSET(OPLKLIB_DEBUG CACHE)
+            MESSAGE(STATUS "Searching for LIBRARY ${OPLKLIB_DEBUG_NAME} in ${OPLKLIB_DIR}")
+            FIND_LIBRARY(OPLKLIB_DEBUG NAME ${OPLKLIB_DEBUG_NAME}
+                                    HINTS ${OPLKLIB_DIR} ${OPLKLIB_DIR}/${CFG_DEMO_BOARD_NAME}/${CFG_DEMO_NAME})
 
-        IF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+            IF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
-            UNSET(OPLKDLL_DEBUG CACHE)
-            FIND_PROGRAM(OPLKDLL_DEBUG NAME ${OPLKLIB_DEBUG_NAME}.dll
-                                       HINTS ${OPLKLIB_DIR})
+                UNSET(OPLKDLL_DEBUG CACHE)
+                FIND_PROGRAM(OPLKDLL_DEBUG NAME ${OPLKLIB_DEBUG_NAME}.dll
+                                        HINTS ${OPLKLIB_DIR})
 
-        ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    ENDIF()
+            ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        ENDIF()
+    ENDIF(CFG_OPLK_LIB)
 
 ENDMACRO(FIND_OPLK_LIBRARY)
