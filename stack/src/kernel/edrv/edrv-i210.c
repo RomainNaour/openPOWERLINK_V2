@@ -63,6 +63,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <linux/types.h>
 #include <linux/init.h>
 #include <linux/delay.h>
+#include <linux/time.h>
 
 //============================================================================//
 //            G L O B A L   D E F I N I T I O N S                             //
@@ -428,6 +429,17 @@ void TgtDbgPostTraceValue (UINT32 dwTraceValue_p);
 #define EDRV_TRACE_RX_ERR(x)            TGT_DBG_POST_TRACE_VALUE(((x) & 0xFFFF) | 0x0F000000)
 #define EDRV_TRACE_RX_PUN(x)            TGT_DBG_POST_TRACE_VALUE(((x) & 0xFFFF) | 0x11000000)
 #define EDRV_TRACE(x)                   TGT_DBG_POST_TRACE_VALUE(((x) & 0xFFFF0000) | 0x0000FEC0)
+
+/* /!\ from glibc */
+# define timersub(a, b, result)                           \
+  do {                                        \
+    (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;                 \
+    (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;                  \
+    if ((result)->tv_usec < 0) {                          \
+      --(result)->tv_sec;                             \
+      (result)->tv_usec += 1000000;                       \
+    }                                         \
+  } while (0)
 
 //------------------------------------------------------------------------------
 // local types
@@ -2519,6 +2531,7 @@ static INT initOnePciDev(struct pci_dev* pPciDev_p, const struct pci_device_id* 
     INT             index;
     INT             numVectors;
     struct timespec sysTime;
+    struct timeval start, stop, linkUpTime;
 
     if (edrvInstance_l.pPciDev != NULL)
     {
@@ -2916,12 +2929,21 @@ static INT initOnePciDev(struct pci_dev* pPciDev_p, const struct pci_device_id* 
 
     EDRV_REGDW_WRITE(EDRV_INTR_EIAC, reg);
 
-    printk("%s waiting for link up...", __FUNCTION__);
+    printk("%s waiting for link up... (timeout %d)", __FUNCTION__,
+           EDRV_LINK_UP_TIMEOUT);
+
+    do_gettimeofday(&start);
+
     for (index = EDRV_LINK_UP_TIMEOUT; index > 0; index -= 100)
     {
         if ((EDRV_REGDW_READ(EDRV_STATUS_REG) & EDRV_STATUS_LU))
         {
-            printk("Link Up\n");
+            do_gettimeofday(&stop);
+
+            timersub(&stop, &start, &linkUpTime);
+
+            printk("Link Up (%ld.%06ld)\n", (long int) linkUpTime.tv_sec,
+                   (long int) linkUpTime.tv_usec );
             reg = EDRV_REGDW_READ(EDRV_STATUS_REG);
             break;
         }
@@ -2930,7 +2952,12 @@ static INT initOnePciDev(struct pci_dev* pPciDev_p, const struct pci_device_id* 
 
     if (index == 0)
     {
-        printk("Link Down\n");
+        do_gettimeofday(&stop);
+
+        timersub(&stop, &start, &linkUpTime);
+
+        printk("Link Down (%ld.%06ld)\n", (long int) linkUpTime.tv_sec,
+                (long int) linkUpTime.tv_usec );
         result = -EIO;
         goto ExitFail;
     }
